@@ -20,7 +20,7 @@
 
     public class Startup
     {
-        private const string ClientUri = @"https://localhost:44310/";
+        private const string ClientUri = @"https://cheese.servertest.local:44310/";
         private const string IdServBaseUri = @"https://localhost:44346/IdentityServer";
         private const string UserInfoEndpoint = IdServBaseUri + @"/connect/userinfo";
         private const string TokenEndpoint = IdServBaseUri + @"/connect/token";
@@ -45,8 +45,8 @@
                 {
                     ClientId = "hybridclient",
                     Authority = IdServBaseUri,
-                    RedirectUri = ClientUri,
-                    PostLogoutRedirectUri = ClientUri,
+                    //RedirectUri = ClientUri,
+                    //PostLogoutRedirectUri = ClientUri,
                     ResponseType = "code id_token token",
                     Scope = "openid profile email roles offline_access",
                     TokenValidationParameters = new TokenValidationParameters
@@ -60,6 +60,18 @@
                         {
                             AuthorizationCodeReceived = async n =>
                             {
+                                var uri = $"{n.Request.Scheme}://{n.Request.Host}/";
+
+                                if (this.ValidateUri(uri))
+                                {
+                                    n.ProtocolMessage.RedirectUri = uri;
+                                    n.ProtocolMessage.PostLogoutRedirectUri = uri;
+                                }
+                                else
+                                {
+                                    // TODO: Some kind of error here?
+                                }
+
                                 // Here we are using the UserInfoClient helper from the IdentityModel library to retrieve the user's claims and then 
                                 // creating a new ClaimsIdentity, keeping the AuthenticationType the same. We are then populating this identity with 
                                 // any claims we want both from the existing ClaimsIdentity and then any claims we received from the userinfo endpoint. 
@@ -76,7 +88,7 @@
                                 // This is used for simple handling of OAuth requests and is internally a wrapper around HttpClient. 
                                 // By trading in our Authorization Code like this we receive a new access token and a refresh token along with it.
                                 var tokenClient = new TokenClient(TokenEndpoint, "hybridclient", "idsrv3test");
-                                var response = await tokenClient.RequestAuthorizationCodeAsync(n.Code, n.RedirectUri);
+                                var response = await tokenClient.RequestAuthorizationCodeAsync(n.Code, n.ProtocolMessage.RedirectUri);
 
                                 identity.AddClaim(new Claim("access_token", response.AccessToken));
                                 identity.AddClaim(
@@ -96,7 +108,19 @@
                                     n.AuthenticationTicket.Properties);
                             },
                             RedirectToIdentityProvider = n =>
-                            {
+                            {                                
+                                var uri = $"{n.Request.Scheme}://{n.Request.Host}/";
+
+                                if (this.ValidateUri(uri))
+                                {
+                                    n.ProtocolMessage.RedirectUri = uri;
+                                    n.ProtocolMessage.PostLogoutRedirectUri = uri;
+                                }
+                                else
+                                {
+                                    // TODO: Some kind of error here?
+                                }
+
                                 if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.AuthenticationRequest)
                                 {
                                     if (n.OwinContext.Authentication.User.FindFirst("tenant") != null)
@@ -116,6 +140,17 @@
                             }
                         }
                 });
+        }
+
+        public bool ValidateUri(string uri)
+        {
+            // TODO: Get the subdomains from the provider/tenant
+            var uris = new List<string>
+                                               {
+                                                   "https://cheese.servertest.local:44310/",
+                                                   "https://fish.servertest.local:44310/"
+                                               };
+            return uris.Contains(uri);
         }
     }
 }

@@ -46,9 +46,9 @@
                                    Flow = Flows.Hybrid,
                                    RequireConsent = true,
                                    AllowRememberConsent = true,
-                                   RedirectUris = new List<string> { "https://localhost:44310/" },
-                                   PostLogoutRedirectUris =
-                                       new List<string> { "https://localhost:44310/" },
+                                   //RedirectUris = new List<string> { "https://cheese.servertest.local:44310/" },
+                                   //PostLogoutRedirectUris =
+                                   //    new List<string> { "https://cheese.servertest.local:44310/" },
                                    AllowedScopes =
                                        new List<string>
                                            {

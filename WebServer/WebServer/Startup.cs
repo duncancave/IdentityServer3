@@ -24,6 +24,7 @@
                 coreApp =>
                     {
                         var userService = new UserService();
+                        var uriValidator = new UriValidator();
 
                         coreApp.UseIdentityServer(
                             new IdentityServerOptions
@@ -40,7 +41,8 @@
                                                       ClientStore = new Registration<IClientStore>(r => new InMemoryClientStore(Clients.Get())),
                                                       //UserService = new Registration<IUserService>(r => new InMemoryUserService(Users.Get())),
                                                       UserService = new Registration<IUserService>(r => userService),
-                                                      ScopeStore = new Registration<IScopeStore>(r => new InMemoryScopeStore(Scopes.Get()))
+                                                      ScopeStore = new Registration<IScopeStore>(r => new InMemoryScopeStore(Scopes.Get())),
+                                                      RedirectUriValidator = new Registration<IRedirectUriValidator>(r => uriValidator)
                                                   },
                                     RequireSsl = true
                                 });
