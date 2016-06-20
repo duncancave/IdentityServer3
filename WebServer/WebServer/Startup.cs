@@ -11,6 +11,7 @@
     using Owin;
 
     using WebServer.Configuration;
+    using WebServer.Services;
 
     public sealed class Startup
     {
@@ -22,6 +23,8 @@
                 "/IdentityServer",
                 coreApp =>
                     {
+                        var userService = new UserService();
+
                         coreApp.UseIdentityServer(
                             new IdentityServerOptions
                                 {
@@ -35,7 +38,8 @@
                                     Factory = new IdentityServerServiceFactory
                                                   {
                                                       ClientStore = new Registration<IClientStore>(r => new InMemoryClientStore(Clients.Get())),
-                                                      UserService = new Registration<IUserService>(r => new InMemoryUserService(Users.Get())),
+                                                      //UserService = new Registration<IUserService>(r => new InMemoryUserService(Users.Get())),
+                                                      UserService = new Registration<IUserService>(r => userService),
                                                       ScopeStore = new Registration<IScopeStore>(r => new InMemoryScopeStore(Scopes.Get()))
                                                   },
                                     RequireSsl = true
