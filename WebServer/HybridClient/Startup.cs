@@ -60,12 +60,13 @@
                         {
                             AuthorizationCodeReceived = async n =>
                             {
+                                // Check the uri and get the tenant
                                 var uri = $"{n.Request.Scheme}://{n.Request.Host}/";
+                                string tenant = String.Empty;
 
                                 if (this.ValidateUri(uri))
                                 {
-                                    n.ProtocolMessage.RedirectUri = uri;
-                                    n.ProtocolMessage.PostLogoutRedirectUri = uri;
+                                    tenant = this.Between(uri, "//", ".");
                                 }
                                 else
                                 {
@@ -88,7 +89,7 @@
                                 // This is used for simple handling of OAuth requests and is internally a wrapper around HttpClient. 
                                 // By trading in our Authorization Code like this we receive a new access token and a refresh token along with it.
                                 var tokenClient = new TokenClient(TokenEndpoint, "hybridclient", "idsrv3test");
-                                var response = await tokenClient.RequestAuthorizationCodeAsync(n.Code, n.ProtocolMessage.RedirectUri);
+                                var response = await tokenClient.RequestAuthorizationCodeAsync(n.Code, uri);
 
                                 identity.AddClaim(new Claim("access_token", response.AccessToken));
                                 identity.AddClaim(
@@ -100,7 +101,7 @@
                                 identity.AddClaim(new Claim("id_token", n.ProtocolMessage.IdToken));
 
                                 // Test tenant code - here we would get the tenant from the url (unless there is a better way?)
-                                var tenant = DateTime.Now.Minute % 2 != 0 ? "Tenant1" : "Tenant2";
+                                //var tenant = DateTime.Now.Minute % 2 != 0 ? "Tenant1" : "Tenant2";
                                 identity.AddClaim(new Claim("tenant", tenant));
 
                                 n.AuthenticationTicket = new AuthenticationTicket(
@@ -146,11 +147,31 @@
         {
             // TODO: Get the subdomains from the provider/tenant
             var uris = new List<string>
-                                               {
-                                                   "https://cheese.servertest.local:44310/",
-                                                   "https://fish.servertest.local:44310/"
-                                               };
+                           {
+                               "https://cheese.servertest.local:44310/",
+                               "https://fish.servertest.local:44310/"
+                           };
             return uris.Contains(uri);
+        }
+
+        public string Between(string value, string a, string b)
+        {
+            var posA = value.IndexOf(a);
+            var posB = value.IndexOf(b);
+
+            if (posA == -1)
+            {
+                return string.Empty;
+            }
+
+            if (posB == -1)
+            {
+                return string.Empty;
+            }
+
+            var adjustedPosA = posA + a.Length;
+
+            return adjustedPosA >= posB ? "" : value.Substring(adjustedPosA, posB - adjustedPosA);
         }
     }
 }
