@@ -44,8 +44,8 @@
                                        new List<Secret> { new Secret("idsrv3test".Sha256()) },
                                    Enabled = true,
                                    Flow = Flows.Hybrid,
-                                   RequireConsent = true,
-                                   AllowRememberConsent = true,
+                                   RequireConsent = false,
+                                   AllowRememberConsent = false,
                                    //RedirectUris = new List<string> { "https://cheese.servertest.local:44310/" },
                                    //PostLogoutRedirectUris =
                                    //    new List<string> { "https://cheese.servertest.local:44310/" },
