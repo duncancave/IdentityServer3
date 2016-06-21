@@ -14,6 +14,7 @@
                                                        new CustomUser
                                                            {
                                                                Subject = "1234",
+                                                               Tenant = "Cheese",
                                                                Username = "Duncan",
                                                                Password = "Password1",
                                                                Claims =
@@ -32,9 +33,9 @@
         //    return this.users;
         //}
 
-        public CustomUser GetUser(string username, string password)
+        public CustomUser GetUser(string tenant, string username, string password)
         {
-            var user = this.users.SingleOrDefault(x => x.Username == username && x.Password == password);
+            var user = this.users.SingleOrDefault(x => x.Tenant.ToUpper() == tenant.ToUpper() && x.Username == username && x.Password == password);
             return user;
         }
 

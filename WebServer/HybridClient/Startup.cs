@@ -62,7 +62,7 @@
                             {
                                 // Check the uri and get the tenant
                                 var uri = $"{n.Request.Scheme}://{n.Request.Host}/";
-                                string tenant = String.Empty;
+                                var tenant = string.Empty;
 
                                 if (this.ValidateUri(uri))
                                 {
@@ -115,7 +115,7 @@
                                 if (this.ValidateUri(uri))
                                 {
                                     n.ProtocolMessage.RedirectUri = uri;
-                                    n.ProtocolMessage.PostLogoutRedirectUri = uri;
+                                    n.ProtocolMessage.PostLogoutRedirectUri = uri;                                   
                                 }
                                 else
                                 {
@@ -124,11 +124,14 @@
 
                                 if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.AuthenticationRequest)
                                 {
-                                    if (n.OwinContext.Authentication.User.FindFirst("tenant") != null)
-                                    {
-                                        var tenant = n.OwinContext.Authentication.User.FindFirst("tenant").Value;
-                                        n.ProtocolMessage.AcrValues = $"tenant:{tenant}";
-                                    }
+                                    //if (n.OwinContext.Authentication.User.FindFirst("tenant") != null)
+                                    //{
+                                    //    var tenant = n.OwinContext.Authentication.User.FindFirst("tenant").Value;
+                                    //    n.ProtocolMessage.AcrValues = $"tenant:{tenant}";
+                                    //}
+
+                                    var tenant = this.Between(uri, "//", ".");
+                                    n.ProtocolMessage.AcrValues = $"tenant:{tenant}";                                   
                                 }
 
                                 if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.LogoutRequest)

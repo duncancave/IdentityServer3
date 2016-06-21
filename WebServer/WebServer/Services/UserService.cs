@@ -32,7 +32,7 @@
         public Task AuthenticateLocalAsync(LocalAuthenticationContext context)
         {
             //var user = Users.SingleOrDefault(x => x.Username == context.UserName && x.Password == context.Password);
-            var user = this.repository.GetUser(context.UserName, context.Password);
+            var user = this.repository.GetUser(context.SignInMessage.Tenant, context.UserName, context.Password);
             if (user != null)
             {
                 context.AuthenticateResult = new AuthenticateResult(user.Subject, user.Username);

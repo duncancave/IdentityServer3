@@ -8,7 +8,7 @@
     {
         //List<CustomUser> GetUsers();
 
-        CustomUser GetUser(string username, string password);
+        CustomUser GetUser(string tenant, string username, string password);
 
         CustomUser GetUserById(string Id);
     }
