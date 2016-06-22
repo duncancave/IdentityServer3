@@ -20,7 +20,7 @@
 
     public class Startup
     {
-        private const string ClientUri = @"https://cheese.servertest.local:44310/";
+        //private const string ClientUri = @"https://cheese.servertest.local:44310/";
         private const string IdServBaseUri = @"https://localhost:44346/IdentityServer";
         private const string UserInfoEndpoint = IdServBaseUri + @"/connect/userinfo";
         private const string TokenEndpoint = IdServBaseUri + @"/connect/token";
@@ -100,10 +100,6 @@
                                 // OpenID Connect Provider some sort of idea about the current authenticated session.
                                 identity.AddClaim(new Claim("id_token", n.ProtocolMessage.IdToken));
 
-                                // Test tenant code - here we would get the tenant from the url (unless there is a better way?)
-                                //var tenant = DateTime.Now.Minute % 2 != 0 ? "Tenant1" : "Tenant2";
-                                identity.AddClaim(new Claim("tenant", tenant));
-
                                 n.AuthenticationTicket = new AuthenticationTicket(
                                     identity,
                                     n.AuthenticationTicket.Properties);
@@ -124,12 +120,6 @@
 
                                 if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.AuthenticationRequest)
                                 {
-                                    //if (n.OwinContext.Authentication.User.FindFirst("tenant") != null)
-                                    //{
-                                    //    var tenant = n.OwinContext.Authentication.User.FindFirst("tenant").Value;
-                                    //    n.ProtocolMessage.AcrValues = $"tenant:{tenant}";
-                                    //}
-
                                     var tenant = this.Between(uri, "//", ".");
                                     n.ProtocolMessage.AcrValues = $"tenant:{tenant}";                                   
                                 }

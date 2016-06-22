@@ -10,11 +10,18 @@
 
     using Owin;
 
+    using Serilog;
+
     using WebServer.Configuration;
     using WebServer.Services;
 
     public sealed class Startup
     {
+        public Startup()
+        {
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Trace().CreateLogger();
+        }
+
         public void Configuration(IAppBuilder app)
         {
             // The OpenID Connect discovery endpoint is: https://localhost:44346/IdentityServer/.well-known/openid-configuration
@@ -25,24 +32,20 @@
                     {
                         var userService = new UserService();
                         var uriValidator = new UriValidator();
+                        var requestValidator = new RequestValidator();
 
                         coreApp.UseIdentityServer(
                             new IdentityServerOptions
                                 {
                                     SiteName = "Standalone Identity Server",
                                     SigningCertificate = this.LoadCertificate(),
-                                    //Factory =
-                                    //    new IdentityServerServiceFactory().UseInMemoryClients(
-                                    //        Clients.Get())
-                                    //    .UseInMemoryScopes(Scopes.Get())
-                                    //    .UseInMemoryUsers(Users.Get()),
                                     Factory = new IdentityServerServiceFactory
                                                   {
                                                       ClientStore = new Registration<IClientStore>(r => new InMemoryClientStore(Clients.Get())),
-                                                      //UserService = new Registration<IUserService>(r => new InMemoryUserService(Users.Get())),
                                                       UserService = new Registration<IUserService>(r => userService),
                                                       ScopeStore = new Registration<IScopeStore>(r => new InMemoryScopeStore(Scopes.Get())),
-                                                      RedirectUriValidator = new Registration<IRedirectUriValidator>(r => uriValidator)
+                                                      RedirectUriValidator = new Registration<IRedirectUriValidator>(r => uriValidator),
+                                                      CustomRequestValidator = new Registration<ICustomRequestValidator>(r => requestValidator)
                                                   },
                                     RequireSsl = true
                                 });

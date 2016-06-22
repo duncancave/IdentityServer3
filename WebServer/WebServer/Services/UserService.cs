@@ -31,11 +31,11 @@
 
         public Task AuthenticateLocalAsync(LocalAuthenticationContext context)
         {
-            //var user = Users.SingleOrDefault(x => x.Username == context.UserName && x.Password == context.Password);
             var user = this.repository.GetUser(context.SignInMessage.Tenant, context.UserName, context.Password);
             if (user != null)
             {
-                context.AuthenticateResult = new AuthenticateResult(user.Subject, user.Username);
+                var extraClaims = new List<Claim> { new Claim("tenant", user.Tenant) };
+                context.AuthenticateResult = new AuthenticateResult(user.Subject, user.Username, extraClaims);
             }
 
             return Task.FromResult(0);
@@ -59,12 +59,14 @@
         public Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             // issue the claims for the user
-            //var user = Users.SingleOrDefault(x => x.Subject == context.Subject.GetSubjectId());
             var user = this.repository.GetUserById(context.Subject.GetSubjectId());
             if (user != null)
             {
                 // TODO: Add claims for user, tenant and publisher here
-                context.IssuedClaims = user.Claims.Where(x => context.RequestedClaimTypes.Contains(x.Type));
+                var userClaims = user.Claims.Where(x => context.RequestedClaimTypes.Contains(x.Type)).ToList();
+                userClaims.Add(new Claim("tenant", user.Tenant));
+
+                context.IssuedClaims = userClaims;
             }
 
             return Task.FromResult(0);
