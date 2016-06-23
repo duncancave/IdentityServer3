@@ -58,6 +58,7 @@
                     Notifications =
                         new OpenIdConnectAuthenticationNotifications
                         {
+                            // Use the Authorisation Code Flow - it's more secure than Implicit flow and allows us to request refresh tokens
                             AuthorizationCodeReceived = async n =>
                             {
                                 // Check the uri and get the tenant
@@ -94,6 +95,8 @@
                                 identity.AddClaim(new Claim("access_token", response.AccessToken));
                                 identity.AddClaim(
                                     new Claim("expires_at", DateTime.UtcNow.AddSeconds(response.ExpiresIn).ToLocalTime().ToString(CultureInfo.InvariantCulture)));
+
+                                // We can only get the refresh token because we request the offline access scope in the client
                                 identity.AddClaim(new Claim("refresh_token", response.RefreshToken));
 
                                 // To use the post logout redirect(also logs us out of Identity Server) we should also supply the previously issued ID token in order to give the 
