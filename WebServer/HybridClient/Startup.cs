@@ -96,10 +96,11 @@
                                     new Claim("expires_at", DateTime.UtcNow.AddSeconds(response.ExpiresIn).ToLocalTime().ToString(CultureInfo.InvariantCulture)));
                                 identity.AddClaim(new Claim("refresh_token", response.RefreshToken));
 
-                                // To use the post logout redirect we should also supply the previously issued ID token in order to give the 
+                                // To use the post logout redirect(also logs us out of Identity Server) we should also supply the previously issued ID token in order to give the 
                                 // OpenID Connect Provider some sort of idea about the current authenticated session.
                                 identity.AddClaim(new Claim("id_token", n.ProtocolMessage.IdToken));
 
+                                // This ticket is used to set up our claims principal
                                 n.AuthenticationTicket = new AuthenticationTicket(
                                     identity,
                                     n.AuthenticationTicket.Properties);
@@ -124,6 +125,7 @@
                                     n.ProtocolMessage.AcrValues = $"tenant:{tenant}";                                   
                                 }
 
+                                // This allows us to redirect back to our site on logout of IdentityServer (but not automatically)
                                 if (n.ProtocolMessage.RequestType == OpenIdConnectRequestType.LogoutRequest)
                                 {
                                     var idTokenHint = n.OwinContext.Authentication.User.FindFirst("id_token").Value;

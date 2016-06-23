@@ -56,7 +56,8 @@
                                                Constants.StandardScopes.Profile,
                                                Constants.StandardScopes.Email,
                                                Constants.StandardScopes.Roles,
-                                               Constants.StandardScopes.OfflineAccess
+                                               Constants.StandardScopes.OfflineAccess,
+                                               "SomeApi"
                                            },
                                    AccessTokenType = AccessTokenType.Jwt
                                }

@@ -15,7 +15,8 @@
                            StandardScopes.Profile,
                            StandardScopes.Email,
                            StandardScopes.Roles,
-                           StandardScopes.OfflineAccess
+                           StandardScopes.OfflineAccess,
+                           new Scope { Name = "SomeApi" }
                        };
         }
     }
