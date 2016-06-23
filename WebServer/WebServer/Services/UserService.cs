@@ -15,7 +15,7 @@
     using WebServer.Interfaces;
     using WebServer.Repositories;
 
-    public class UserService : IUserService
+    public class UserService : UserServiceBase
     {
         private IUserRepository repository;
 
@@ -24,15 +24,15 @@
             this.repository = new UserRepository();
         }
 
-        public Task PreAuthenticateAsync(PreAuthenticationContext context)
-        {
-            return Task.FromResult(0);
-        }
-
-        public Task AuthenticateLocalAsync(LocalAuthenticationContext context)
+        public override Task AuthenticateLocalAsync(LocalAuthenticationContext context)
         {
             var user = this.repository.GetUser(context.SignInMessage.Tenant, context.UserName, context.Password);
-            if (user != null)
+
+            if (user == null)
+            {
+                context.AuthenticateResult = new AuthenticateResult("Incorrect credentials");
+            }
+            else
             {
                 var extraClaims = new List<Claim> { new Claim("tenant", user.Tenant) };
                 context.AuthenticateResult = new AuthenticateResult(user.Subject, user.Username, extraClaims);
@@ -41,22 +41,7 @@
             return Task.FromResult(0);
         }
 
-        public Task AuthenticateExternalAsync(ExternalAuthenticationContext context)
-        {
-            return Task.FromResult<AuthenticateResult>(null);
-        }
-
-        public Task PostAuthenticateAsync(PostAuthenticationContext context)
-        {
-            return Task.FromResult(0);
-        }
-
-        public Task SignOutAsync(SignOutContext context)
-        {
-            return Task.FromResult(0);
-        }
-
-        public Task GetProfileDataAsync(ProfileDataRequestContext context)
+        public override Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             // issue the claims for the user
             var user = this.repository.GetUserById(context.Subject.GetSubjectId());
@@ -72,7 +57,7 @@
             return Task.FromResult(0);
         }
 
-        public Task IsActiveAsync(IsActiveContext context)
+        public override Task IsActiveAsync(IsActiveContext context)
         {
             context.IsActive = true;
             return Task.FromResult(0);
