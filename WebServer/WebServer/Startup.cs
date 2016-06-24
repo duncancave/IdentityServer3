@@ -45,7 +45,8 @@
                                                       UserService = new Registration<IUserService>(r => userService),
                                                       ScopeStore = new Registration<IScopeStore>(r => new InMemoryScopeStore(Scopes.Get())),
                                                       RedirectUriValidator = new Registration<IRedirectUriValidator>(r => uriValidator),
-                                                      CustomRequestValidator = new Registration<ICustomRequestValidator>(r => requestValidator)
+                                                      CustomRequestValidator = new Registration<ICustomRequestValidator>(r => requestValidator),
+                                                      ViewService = new Registration<IViewService, CustomViewService>()
                                                   },
                                     RequireSsl = true
                                 });
